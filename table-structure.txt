@@ -1,0 +1,17 @@
+users
+otp_sessions
+onboarding_profiles
+companions
+user_companions
+conversations
+messages
+subscriptions
+payments
+usage_limits
+user_preferences
+user_memories
+ai_personality_profiles
+companion_voice_profiles
+push_tokens
+analytics_events
+reports

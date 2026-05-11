@@ -167,7 +167,7 @@ export default function LoginScreen({
               }
               keyboardType="number-pad"
               maxLength={10}
-              autoFocus
+              // autoFocus
               editable={!loading}
               style={[
                 styles.input,

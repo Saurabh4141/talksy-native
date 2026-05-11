@@ -29,7 +29,7 @@ import { radius } from '../../../theme';
 
 import { nameCopy } from '../../../locales/onboarding/name';
 
-import { updateName } from '../../../services/onboarding.service';
+import { updateName } from '../../../services/user.service';
 
 const { width } =
     Dimensions.get('window');
@@ -88,15 +88,19 @@ export default function NameScreen({
     /**
      * Focus input
      */
-    useEffect(() => {
-        const timer =
-            setTimeout(() => {
-                inputRef.current?.focus();
-            }, 350);
+    // useEffect(() => {
+    //     /**
+    //      * Wait until splash
+    //      * fully disappears
+    //      */
+    //     const timer =
+    //         setTimeout(() => {
+    //             inputRef.current?.focus();
+    //         }, 2200);
 
-        return () =>
-            clearTimeout(timer);
-    }, []);
+    //     return () =>
+    //         clearTimeout(timer);
+    // }, []);
 
     /**
      * Validation

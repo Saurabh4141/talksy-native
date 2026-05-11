@@ -7,6 +7,7 @@ import React, {
 import {
   Animated,
   StyleSheet,
+  View,
 } from 'react-native';
 
 import SplashScreen from '../modules/onboarding/screens/SplashScreen';
@@ -19,6 +20,8 @@ import OnboardingNavigator from './OnboardingNavigator';
 
 import MainNavigator from './MainNavigator';
 
+
+
 export default function RootNavigator() {
   /**
    * Auth state
@@ -30,13 +33,13 @@ export default function RootNavigator() {
   } = useAuth();
 
   /**
-   * Splash state
+   * Splash bootstrap
    */
   const [bootstrapped, setBootstrapped] =
     useState(false);
 
   /**
-   * Fade animation
+   * Splash opacity
    */
   const opacity =
     useMemo(
@@ -49,42 +52,49 @@ export default function RootNavigator() {
    * Bootstrap app
    */
   useEffect(() => {
-    if (!loading) {
-      /**
-       * Small delay
-       */
-      const timer =
-        setTimeout(() => {
-          /**
-           * Fade splash
-           */
-          Animated.timing(
-            opacity,
-            {
-              toValue: 0,
-
-              duration: 500,
-
-              useNativeDriver: true,
-            },
-          ).start(() => {
-            setBootstrapped(
-              true,
-            );
-          });
-        }, 1500);
-
-      return () =>
-        clearTimeout(timer);
+    /**
+     * Wait until auth restore finishes
+     */
+    if (loading) {
+      return;
     }
+
+    /**
+     * Small branded delay
+     */
+    const timer =
+      setTimeout(() => {
+        Animated.timing(
+          opacity,
+          {
+            toValue: 0,
+
+            duration: 500,
+
+            useNativeDriver: true,
+          },
+        ).start(() => {
+          setBootstrapped(
+            true,
+          );
+        });
+      }, 1400);
+
+    return () =>
+      clearTimeout(timer);
   }, [loading]);
 
+  
+
+  if (loading) {
+    return null;
+  }
   /**
    * Decide navigator
    */
   function renderNavigator() {
     /**
-     * Not logged in
+     * Not authenticated
      */
     if (!authenticated) {
       return (
@@ -99,7 +109,15 @@ export default function RootNavigator() {
       !user?.onboarding_completed
     ) {
       return (
-        <OnboardingNavigator />
+        <OnboardingNavigator
+          key={
+            user?.onboarding_step ||
+            'language'
+          }
+          onboardingStep={
+            user?.onboarding_step
+          }
+        />
       );
     }
 
@@ -110,8 +128,8 @@ export default function RootNavigator() {
   }
 
   return (
-    <>
-      {/* App always mounted */}
+    <View style={styles.container}>
+      {/* App */}
       {renderNavigator()}
 
       {/* Splash overlay */}
@@ -120,15 +138,31 @@ export default function RootNavigator() {
           pointerEvents="none"
           style={[
             StyleSheet.absoluteFillObject,
+
+            styles.splashOverlay,
+
             {
               opacity,
-              zIndex: 999,
             },
           ]}
         >
           <SplashScreen />
         </Animated.View>
       )}
-    </>
+    </View>
   );
 }
+
+const styles =
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor:
+        '#05010f',
+    },
+
+    splashOverlay: {
+      zIndex: 999,
+      elevation: 999,
+    },
+  });

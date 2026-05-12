@@ -159,7 +159,7 @@ export default function GenderScreen({
              * Next screen
              */
             navigation.replace(
-                'Vibe',
+                'CompanionGender',
             );
         } catch (err) {
             console.log(

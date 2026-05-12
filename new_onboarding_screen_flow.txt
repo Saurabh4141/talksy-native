@@ -1,0 +1,198 @@
+✅ NEW ONBOARDING SCREEN FLOW (PROPER PROJECT STRUCTURE)
+
+🟣 EXAMPLE
+
+Suppose new screen: CompanionGender
+
+next screen: Role
+
+✅ STEP 1 — CREATE SCREEN FILE
+E:\Saurabh_Live\talksy-native\src\modules\onboarding\screens\CompanionGender.js
+	Add:
+		UI
+		API call
+		updateUser()
+		NO manual navigation
+		
+✅ STEP 2 — CREATE API SERVICE
+📄 Path
+E:\Saurabh_Live\talksy-native\src\services\user.service.js
+
+Add function:
+
+export async function updateCompanionGender(
+  gender_preference,
+)
+
+This calls:
+
+/users/companion-gender
+
+
+✅ STEP 3 — BACKEND ROUTE
+📄 Path
+E:\RS-PY\backend\src\modules\users\user.routes.js
+
+Add:
+
+router.patch(
+  '/companion-gender',
+  authMiddleware,
+  updateCompanionGenderController,
+);
+
+
+✅ STEP 4 — BACKEND CONTROLLER
+📄 Path
+E:\RS-PY\backend\src\modules\users\user.controller.js
+
+Add:
+
+const updateCompanionGenderController =
+  async (req, res) => {}
+
+This should:
+
+get userId from token
+get gender_preference from body
+call service
+return updated user
+
+
+✅ STEP 5 — BACKEND SERVICE
+📄 Path
+E:\RS-PY\backend\src\modules\users\user.service.js
+
+Add:
+
+const updateCompanionGender =
+  async ({
+    userId,
+    gender_preference,
+  }) => {}
+
+This should:
+
+validate input
+update onboarding_profiles
+update onboarding_step in users table
+return FULL updated user with onboarding_profile
+
+✅ STEP 6 — UPDATE ONBOARDING STEP
+
+VERY IMPORTANT.
+
+Inside service:
+
+onboarding_step:
+  'role',
+
+This controls:
+
+next screen
+onboarding resume
+restart flow
+✅ STEP 7 — RETURN FULL USER
+
+Inside backend service ALWAYS return:
+
+{
+  user: fullUser
+}
+
+Including:
+
+onboarding_profile
+onboarding_step
+onboarding_completed
+✅ STEP 8 — UPDATE ONBOARDING NAVIGATOR
+📄 Path
+E:\Saurabh_Live\talksy-native\src\navigation\OnboardingNavigator.js
+
+Add screen:
+
+<Stack.Screen
+  name="CompanionGender"
+  component={
+    CompanionGenderScreen
+  }
+/>
+✅ STEP 9 — UPDATE STACK BUILDER
+
+Inside same file:
+
+function getInitialRoutes(
+  step,
+)
+
+Add:
+
+case 'role':
+  return [
+    {
+      name: 'Language',
+    },
+    {
+      name: 'Name',
+    },
+    {
+      name: 'Gender',
+    },
+    {
+      name:
+        'CompanionGender',
+    },
+    {
+      name: 'Role',
+    },
+  ];
+
+VERY IMPORTANT.
+
+This controls:
+
+resume flow
+back button history
+onboarding restart behavior
+✅ STEP 10 — REMOVE MANUAL NAVIGATION
+
+DO NOT DO:
+
+navigation.replace()
+navigation.navigate()
+
+inside onboarding screens.
+
+Only:
+
+await updateUser(
+  response.data.user,
+);
+
+RootNavigator handles navigation automatically.
+
+✅ STEP 11 — ROOTNAVIGATOR AUTO FLOW
+📄 Path
+E:\Saurabh_Live\talksy-native\src\navigation\RootNavigator.js
+
+Already correct:
+
+<OnboardingNavigator
+  key={
+    user?.onboarding_step ||
+    'language'
+  }
+  onboardingStep={
+    user?.onboarding_step
+  }
+/>
+
+No need to touch again.
+
+✅ STEP 12 — OPTIONAL LOCALIZATION
+📄 Path
+E:\Saurabh_Live\talksy-native\src\locales\onboarding\
+
+Create:
+
+companionGender.js

@@ -13,10 +13,10 @@ import {
 } from '@react-navigation/native-stack';
 
 import LanguageScreen from '../modules/onboarding/screens/LanguageScreen';
-
 import NameScreen from '../modules/onboarding/screens/NameScreen';
-
 import GenderScreen from '../modules/onboarding/screens/GenderScreen';
+import CompanionGender from '../modules/onboarding/screens/CompanionGender';
+import Role from '../modules/onboarding/screens/Role';
 
 const Stack =
   createNativeStackNavigator();
@@ -28,32 +28,71 @@ function getInitialRoutes(
   step,
 ) {
   switch (step) {
-    case 'gender':
-      return [
-        {
-          name:
-            'Language',
-        },
-
-        {
-          name: 'Name',
-        },
-
-        {
-          name:
-            'Gender',
-        },
-      ];
-
     case 'name':
       return [
         {
-          name:
-            'Language',
+          name: 'Language',
         },
 
         {
           name: 'Name',
+        },
+      ];
+
+    case 'gender':
+      return [
+        {
+          name: 'Language',
+        },
+
+        {
+          name: 'Name',
+        },
+
+        {
+          name: 'Gender',
+        },
+      ];
+
+    case 'companion-gender':
+      return [
+        {
+          name: 'Language',
+        },
+
+        {
+          name: 'Name',
+        },
+
+        {
+          name: 'Gender',
+        },
+
+        {
+          name: 'CompanionGender',
+        },
+      ];
+
+    case 'role':
+      return [
+        {
+          name: 'Language',
+        },
+
+        {
+          name: 'Name',
+        },
+
+        {
+          name: 'Gender',
+        },
+
+        {
+          name: 'CompanionGender',
+        },
+
+        {
+          name: 'Role',
         },
       ];
 
@@ -90,7 +129,7 @@ export default function OnboardingNavigator({
          */
         if (
           now -
-            lastBackPress.current <
+          lastBackPress.current <
           2000
         ) {
           BackHandler.exitApp();
@@ -167,6 +206,24 @@ export default function OnboardingNavigator({
           GenderScreen
         }
       />
+
+
+      {/* Companion Gender */}
+      <Stack.Screen
+        name="CompanionGender"
+        component={
+          CompanionGender
+        }
+      />
+
+      {/* Companion Role */}
+      <Stack.Screen
+        name="Role"
+        component={
+          Role
+        }
+      />
+
     </Stack.Navigator>
   );
 }

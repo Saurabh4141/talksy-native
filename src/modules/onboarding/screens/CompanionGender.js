@@ -7,13 +7,10 @@ import {
   Text,
   Pressable,
   StyleSheet,
-  ScrollView,
   SafeAreaView,
-  Dimensions,
   StatusBar,
+  Dimensions,
 } from 'react-native';
-
-import { LinearGradient } from 'expo-linear-gradient';
 
 import {
   colors,
@@ -22,21 +19,44 @@ import {
   radius,
 } from '../../../theme';
 
-import { LANGUAGES } from '../../../constants/languages';
-
 import useAuth from '../../../hooks/useAuth';
 
-import { updateLanguage } from '../../../services/user.service';
+import { updateCompanionGender } from '../../../services/user.service';
 
 const { width } =
   Dimensions.get('window');
 
-const CARD_HEIGHT =
-  width < 370 ? 88 : 96;
+/**
+ * Companion gender options
+ */
+const COMPANION_GENDERS = [
+  {
+    id: 'female',
+    title: 'Female',
+    subtitle:
+      'Soft, caring energy',
+    icon: '💜',
+  },
 
-export default function LanguageScreen({
-  navigation,
-}) {
+  {
+    id: 'male',
+    title: 'Male',
+    subtitle:
+      'Calm, protective vibe',
+    icon: '🖤',
+  },
+
+  {
+    id: 'non_binary',
+    title:
+      'Non-binary',
+    subtitle:
+      'Balanced emotional connection',
+    icon: '✨',
+  },
+];
+
+export default function CompanionGenderScreen() {
   /**
    * Auth
    */
@@ -46,14 +66,14 @@ export default function LanguageScreen({
   } = useAuth();
 
   /**
-   * Selected language
+   * Selected companion gender
    */
   const [selected, setSelected] =
     useState(
-      user?.preferred_language ||
-      user?.onboarding_profile
-        ?.language ||
-      'hinglish',
+      user
+        ?.onboarding_profile
+        ?.gender_preference ||
+        'female',
     );
 
   /**
@@ -73,7 +93,7 @@ export default function LanguageScreen({
    */
   async function handleContinue() {
     /**
-     * Prevent duplicate clicks
+     * Prevent spam clicks
      */
     if (!canContinue) {
       return;
@@ -83,10 +103,10 @@ export default function LanguageScreen({
       setLoading(true);
 
       /**
-       * Save language
+       * Save companion gender
        */
       const response =
-        await updateLanguage(
+        await updateCompanionGender(
           selected,
         );
 
@@ -110,15 +130,15 @@ export default function LanguageScreen({
         response.data.user,
       );
 
-      setTimeout(() => {
-        navigation.navigate(
-          'Name',
-        );
-      }, 300);
+      /**
+       * DO NOT navigate manually
+       * RootNavigator handles onboarding flow
+       */
     } catch (err) {
       console.log(
-        'language update error:',
-        err,
+        'updateCompanionGender error:',
+        err?.message ||
+          err,
       );
     } finally {
       setLoading(false);
@@ -126,19 +146,19 @@ export default function LanguageScreen({
   }
 
   /**
-   * Language Card
+   * Companion gender card
    */
-  function LanguageCard({
+  function GenderCard({
     item,
   }) {
     const active =
-      selected === item.code;
+      selected === item.id;
 
     return (
       <Pressable
         onPress={() =>
           setSelected(
-            item.code,
+            item.id,
           )
         }
         disabled={loading}
@@ -146,9 +166,10 @@ export default function LanguageScreen({
           styles.card,
 
           active &&
-          styles.activeCard,
+            styles.activeCard,
         ]}
       >
+        {/* Icon */}
         <View
           style={
             styles.iconWrap
@@ -163,6 +184,7 @@ export default function LanguageScreen({
           </Text>
         </View>
 
+        {/* Content */}
         <View
           style={
             styles.cardContent
@@ -170,10 +192,10 @@ export default function LanguageScreen({
         >
           <Text
             style={[
-              styles.languageTitle,
+              styles.cardTitle,
 
               active &&
-              styles.activeTitle,
+                styles.activeTitle,
             ]}
           >
             {item.title}
@@ -181,255 +203,271 @@ export default function LanguageScreen({
 
           <Text
             style={
-              styles.languageSubtitle
+              styles.cardSubtitle
             }
           >
             {item.subtitle}
           </Text>
-
-          {item.recommended && (
-            <View
-              style={
-                styles.badge
-              }
-            >
-              <Text
-                style={
-                  styles.badgeText
-                }
-              >
-                Recommended ⭐
-              </Text>
-            </View>
-          )}
         </View>
       </Pressable>
     );
   }
 
   return (
-    <LinearGradient
-      colors={[
-        '#1b062d',
-        '#090014',
-        '#040009',
-      ]}
-      start={{
-        x: 0,
-        y: 0,
-      }}
-      end={{
-        x: 1,
-        y: 1,
-      }}
+    <SafeAreaView
       style={
-        styles.gradient
+        styles.container
       }
     >
-      <SafeAreaView
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle="light-content"
+      />
+
+      {/* Top glow */}
+      <View
         style={
-          styles.container
+          styles.topGlow
+        }
+      />
+
+      {/* Bottom glow */}
+      <View
+        style={
+          styles.bottomGlow
+        }
+      />
+
+      {/* Content */}
+      <View
+        style={
+          styles.content
         }
       >
-        <StatusBar
-          translucent
-          backgroundColor="transparent"
-          barStyle="light-content"
-        />
-
-        <View
+        {/* Heading */}
+        <Text
           style={
-            styles.topRadiant
-          }
-        />
-
-        <View
-          style={
-            styles.bottomRadiant
-          }
-        />
-
-        <ScrollView
-          contentContainerStyle={
-            styles.scrollContent
-          }
-          showsVerticalScrollIndicator={
-            false
+            styles.title
           }
         >
-          <Text
-            style={
-              styles.title
-            }
-          >
-            Which language would
-            {'\n'}
-            you like to chat in?
-          </Text>
+          Who feels more
+          comfortable
+          to talk with?
+        </Text>
 
-          <Text
-            style={
-              styles.subtitle
-            }
-          >
-            You can change this
-            anytime later
-          </Text>
+        {/* Subtitle */}
+        <Text
+          style={
+            styles.subtitle
+          }
+        >
+          Choose the kind
+          of emotional
+          connection you
+          feel safest with ✨
+        </Text>
 
+        {/* Options */}
+        <View
+          style={
+            styles.list
+          }
+        >
+          {COMPANION_GENDERS.map(
+            (item) => (
+              <GenderCard
+                key={item.id}
+                item={item}
+              />
+            ),
+          )}
+        </View>
+      </View>
+
+      {/* Footer */}
+      <View
+        style={
+          styles.footer
+        }
+      >
+        {/* Button glow */}
+        {selected && (
           <View
             style={
-              styles.list
+              styles.buttonGlow
             }
-          >
-            {LANGUAGES.map(
-              (item) => (
-                <LanguageCard
-                  key={
-                    item.code
-                  }
-                  item={item}
-                />
-              ),
-            )}
-          </View>
-        </ScrollView>
+          />
+        )}
 
-        <View
-          style={
-            styles.footer
+        <Pressable
+          onPress={
+            handleContinue
           }
-        >
-          <Pressable
-            onPress={
-              handleContinue
-            }
-            disabled={
-              !canContinue
-            }
-            style={[
-              styles.button,
+          disabled={
+            !canContinue
+          }
+          style={[
+            styles.button,
 
-              !canContinue &&
+            !canContinue &&
               styles.buttonDisabled,
-            ]}
+          ]}
+        >
+          <Text
+            style={
+              styles.buttonText
+            }
           >
-            <Text
-              style={
-                styles.buttonText
-              }
-            >
-              {loading
-                ? 'Please wait...'
-                : 'Continue'}
-            </Text>
-          </Pressable>
-        </View>
-      </SafeAreaView>
-    </LinearGradient>
+            {loading
+              ? 'Please wait...'
+              : 'Continue'}
+          </Text>
+        </Pressable>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles =
   StyleSheet.create({
-    gradient: {
-      flex: 1,
-    },
-
     container: {
       flex: 1,
       backgroundColor:
-        'transparent',
+        '#05010f',
     },
 
-    topRadiant: {
-      position: 'absolute',
-      top: -180,
+    topGlow: {
+      position:
+        'absolute',
+
+      top: -160,
+
       left: -120,
-      width: 420,
-      height: 420,
+
+      width: 380,
+
+      height: 380,
+
       borderRadius: 999,
+
       backgroundColor:
-        'rgba(168,85,247,0.10)',
+        'rgba(168,85,247,0.12)',
     },
 
-    bottomRadiant: {
-      position: 'absolute',
+    bottomGlow: {
+      position:
+        'absolute',
+
       bottom: -220,
-      right: -160,
-      width: 460,
-      height: 460,
+
+      right: -140,
+
+      width: 420,
+
+      height: 420,
+
       borderRadius: 999,
+
       backgroundColor:
         'rgba(120,60,255,0.08)',
     },
 
-    scrollContent: {
+    content: {
+      flex: 1,
+
       paddingHorizontal:
         spacing.lg,
-      paddingTop: 60,
-      paddingBottom: 140,
+
+      paddingTop: 90,
     },
 
     title: {
-      textAlign: 'center',
+      textAlign:
+        'center',
+
       color:
         colors.textPrimary,
+
       fontSize:
         width < 370
           ? 34
           : 40,
-      fontWeight:
-        typography.weights
-          .extrabold,
+
       lineHeight:
         width < 370
           ? 42
           : 48,
+
+      fontWeight:
+        typography.weights
+          .extrabold,
+
       letterSpacing: -1,
     },
 
     subtitle: {
       marginTop:
         spacing.md,
-      textAlign: 'center',
+
+      textAlign:
+        'center',
+
       color:
         colors.textSecondary,
+
       fontSize:
         typography.sizes
           .md,
+
+      lineHeight: 24,
+
+      paddingHorizontal: 8,
     },
 
     list: {
       marginTop:
         spacing.xxl,
+
       gap: spacing.md,
     },
 
     card: {
-      minHeight:
-        CARD_HEIGHT,
-      flexDirection: 'row',
-      alignItems: 'center',
+      minHeight: 92,
+
+      flexDirection:
+        'row',
+
+      alignItems:
+        'center',
+
       paddingHorizontal: 18,
-      borderRadius: 32,
+
+      borderRadius: 28,
+
       borderWidth: 1,
+
       borderColor:
         'rgba(255,255,255,0.08)',
+
       backgroundColor:
         'rgba(255,255,255,0.04)',
     },
 
     activeCard: {
       borderColor:
-        'rgba(168,85,247,0.6)',
+        'rgba(168,85,247,0.65)',
+
       backgroundColor:
-        'rgba(168,85,247,0.16)',
+        'rgba(168,85,247,0.18)',
     },
 
     iconWrap: {
       width: 56,
+
       justifyContent:
         'center',
+
       alignItems:
         'center',
     },
@@ -442,13 +480,15 @@ const styles =
       flex: 1,
     },
 
-    languageTitle: {
+    cardTitle: {
       color:
         colors.textPrimary,
+
       fontSize:
         width < 370
-          ? 24
-          : 28,
+          ? 22
+          : 26,
+
       fontWeight:
         typography.weights
           .bold,
@@ -458,53 +498,58 @@ const styles =
       color: '#f3d4ff',
     },
 
-    languageSubtitle: {
+    cardSubtitle: {
       marginTop: 4,
+
       color:
         colors.textSecondary,
+
       fontSize:
         typography.sizes
           .md,
     },
 
-    badge: {
-      marginTop: 8,
-      alignSelf:
-        'flex-start',
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-      borderRadius: 999,
-      backgroundColor:
-        'rgba(168,85,247,0.14)',
-    },
-
-    badgeText: {
-      color: '#f5c8ff',
-      fontSize: 12,
-      fontWeight:
-        typography.weights
-          .semibold,
-    },
-
     footer: {
-      position: 'absolute',
-      left: 0,
-      right: 0,
-      bottom: 0,
       paddingHorizontal:
         spacing.lg,
-      paddingBottom: 36,
-      paddingTop: 16,
+
+      paddingBottom: 34,
+
+      paddingTop: 18,
+    },
+
+    buttonGlow: {
+      position:
+        'absolute',
+
+      left: 56,
+
+      right: 56,
+
+      bottom: 28,
+
+      height: 56,
+
+      borderRadius: 999,
+
+      backgroundColor:
+        '#a855f7',
+
+      opacity: 0.24,
     },
 
     button: {
       minHeight: 58,
+
       justifyContent:
         'center',
+
       alignItems:
         'center',
+
       borderRadius:
         radius.full,
+
       backgroundColor:
         colors.primary,
     },
@@ -516,9 +561,11 @@ const styles =
     buttonText: {
       color:
         colors.textPrimary,
+
       fontSize:
         typography.sizes
           .md,
+
       fontWeight:
         typography.weights
           .bold,

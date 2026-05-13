@@ -1,4 +1,4 @@
-// E:\Saurabh_Live\talksy-native\src\modules\onboarding\screens\GenderScreen.js
+// E:\Saurabh_Live\talksy-native\src\modules\onboarding\screens\CompanionGenderScreen.js
 
 import React, {
   useMemo,
@@ -26,34 +26,34 @@ import {
 import useAuth from '../../../hooks/useAuth';
 
 import {
-  updateGender,
-} from '../../../services/user.service';
+  updateCompanionGender,
+} from '../../../services/onboarding.service';
 
 import {
-  genderCopy,
-} from '../../../locales/onboarding/gender';
+  companionGenderCopy,
+} from '../../../locales/onboarding/companionGender';
 
 const { width } =
   Dimensions.get('window');
 
 /**
- * Gender options
+ * Companion gender options
  */
-const GENDERS = [
-  {
-    id: 'male',
-    title: 'Male',
-    subtitle:
-      'He / Him',
-    icon: '🧑',
-  },
-
+const COMPANION_GENDERS = [
   {
     id: 'female',
     title: 'Female',
     subtitle:
-      'She / Her',
-    icon: '👩',
+      'Soft, caring energy',
+    icon: '💜',
+  },
+
+  {
+    id: 'male',
+    title: 'Male',
+    subtitle:
+      'Calm, protective vibe',
+    icon: '🖤',
   },
 
   {
@@ -61,22 +61,12 @@ const GENDERS = [
     title:
       'Non-binary',
     subtitle:
-      'They / Them',
+      'Balanced emotional connection',
     icon: '✨',
-  },
-
-  {
-    id:
-      'prefer_not_say',
-    title:
-      'Prefer not to say',
-    subtitle:
-      'Keep it private',
-    icon: '🌙',
   },
 ];
 
-export default function GenderScreen({
+export default function CompanionGenderScreen({
   navigation,
 }) {
   /**
@@ -95,16 +85,20 @@ export default function GenderScreen({
     'en';
 
   const copy =
-    genderCopy[locale] ||
-    genderCopy.en;
+    companionGenderCopy[
+    locale
+    ] ||
+    companionGenderCopy.en;
 
   /**
-   * Selected gender
+   * Selected companion gender
    */
   const [selected, setSelected] =
     useState(
-      user?.gender ||
-      'male',
+      user
+        ?.onboarding_profile
+        ?.gender_preference ||
+      'female',
     );
 
   /**
@@ -138,17 +132,11 @@ export default function GenderScreen({
     try {
       setLoading(true);
 
-      /**
-       * Save gender
-       */
       const response =
-        await updateGender(
+        await updateCompanionGender(
           selected,
         );
 
-      /**
-       * Validate response
-       */
       if (
         !response ||
         !response.data ||
@@ -159,25 +147,19 @@ export default function GenderScreen({
         );
       }
 
-      /**
-       * Update auth state
-       */
       await updateUser(
         response.data.user,
       );
 
-      /**
-       * Next screen
-       */
-
       setTimeout(() => {
         navigation.navigate(
-          'CompanionGender',
+          'Role',
         );
       }, 300);
     } catch (err) {
       console.log(
-        'gender update error:',
+        'updateCompanionGender error:',
+        err?.message ||
         err,
       );
     } finally {
@@ -186,7 +168,7 @@ export default function GenderScreen({
   }
 
   /**
-   * Gender card
+   * Companion gender card
    */
   function GenderCard({
     item,
@@ -318,7 +300,7 @@ export default function GenderScreen({
               styles.list
             }
           >
-            {GENDERS.map(
+            {COMPANION_GENDERS.map(
               (item) => (
                 <GenderCard
                   key={item.id}
@@ -336,6 +318,7 @@ export default function GenderScreen({
           styles.footer
         }
       >
+
         <Pressable
           onPress={
             handleContinue
@@ -464,6 +447,8 @@ const styles =
             .md,
 
       lineHeight: 24,
+
+      paddingHorizontal: 8,
     },
 
     list: {
@@ -571,6 +556,26 @@ const styles =
 
       backgroundColor:
         'rgba(5,1,15,0.92)',
+    },
+
+    buttonGlow: {
+      // position:
+      //   'absolute',
+
+      // left: 56,
+
+      // right: 56,
+
+      // bottom: 28,
+
+      // height: 56,
+
+      // borderRadius: 999,
+
+      // backgroundColor:
+      //   '#a855f7',
+
+      // opacity: 0.24,
     },
 
     button: {

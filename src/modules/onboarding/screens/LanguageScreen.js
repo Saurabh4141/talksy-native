@@ -110,6 +110,11 @@ export default function LanguageScreen({
         response.data.user,
       );
 
+      console.log(
+        'UPDATED USER AFTER LANGUAGE:',
+        response.data.user,
+      );
+
       setTimeout(() => {
         navigation.navigate(
           'Name',

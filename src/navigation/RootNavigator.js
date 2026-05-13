@@ -20,8 +20,6 @@ import OnboardingNavigator from './OnboardingNavigator';
 
 import MainNavigator from './MainNavigator';
 
-
-
 export default function RootNavigator() {
   /**
    * Auth state
@@ -84,11 +82,30 @@ export default function RootNavigator() {
       clearTimeout(timer);
   }, [loading]);
 
-  
-
+  /**
+   * Wait for auth restore
+   */
   if (loading) {
     return null;
   }
+
+  /**
+   * Debug logs
+   */
+  console.log(
+    'ROOT NAVIGATOR STATE:',
+    {
+      loading,
+
+      authenticated,
+
+      onboardingCompleted:
+        user?.onboarding_completed,
+
+      user,
+    },
+  );
+
   /**
    * Decide navigator
    */
@@ -109,15 +126,7 @@ export default function RootNavigator() {
       !user?.onboarding_completed
     ) {
       return (
-        <OnboardingNavigator
-          key={
-            user?.onboarding_step ||
-            'language'
-          }
-          onboardingStep={
-            user?.onboarding_step
-          }
-        />
+        <OnboardingNavigator />
       );
     }
 
@@ -157,12 +166,14 @@ const styles =
   StyleSheet.create({
     container: {
       flex: 1,
+
       backgroundColor:
         '#05010f',
     },
 
     splashOverlay: {
       zIndex: 999,
+
       elevation: 999,
     },
   });

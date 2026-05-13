@@ -1,4 +1,5 @@
 import React, {
+  useMemo,
   useState,
 } from 'react';
 
@@ -10,6 +11,7 @@ import {
   SafeAreaView,
   StatusBar,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 
 import {
@@ -21,42 +23,105 @@ import {
 
 import useAuth from '../../../hooks/useAuth';
 
-import { updateCompanionGender } from '../../../services/user.service';
+import {
+  roleCopy,
+} from '../../../locales/onboarding/role';
+
+import {
+  updateCompanionRole,
+} from '../../../services/onboarding.service';
 
 const { width } =
   Dimensions.get('window');
 
 /**
- * Companion gender options
+ * Role options
  */
-const COMPANION_GENDERS = [
+const ROLES = [
   {
-    id: 'female',
-    title: 'Female',
-    subtitle:
-      'Soft, caring energy',
-    icon: '💜',
-  },
-
-  {
-    id: 'male',
-    title: 'Male',
-    subtitle:
-      'Calm, protective vibe',
-    icon: '🖤',
-  },
-
-  {
-    id: 'non_binary',
+    id: 'special',
+    icon: '❤️',
     title:
-      'Non-binary',
+      'Someone special',
+
     subtitle:
-      'Balanced emotional connection',
+      'Deep emotional bond',
+  },
+
+  {
+    id: 'friend',
+    icon: '🤝',
+    title:
+      'Chill friend',
+
+    subtitle:
+      'Fun casual connection',
+  },
+
+  {
+    id: 'caring',
+    icon: '🥰',
+    title:
+      'Caring partner',
+
+    subtitle:
+      'Warm emotional support',
+  },
+
+  {
+    id: 'romantic',
+    icon: '😘',
+    title:
+      'Romantic partner',
+
+    subtitle:
+      'Flirty emotional vibe',
+  },
+
+  {
+    id: 'listener',
+    icon: '🫶',
+    title:
+      'Good listener',
+
+    subtitle:
+      'No judgement, just comfort',
+  },
+
+  {
+    id: 'fun',
+    icon: '😂',
+    title:
+      'Fun buddy',
+
+    subtitle:
+      'Playful and energetic',
+  },
+
+  {
+    id: 'naughty',
+    icon: '😈',
+    title:
+      'Thodi naughty',
+
+    subtitle:
+      'Bold playful chemistry',
+  },
+
+  {
+    id: 'unique',
     icon: '✨',
+    title:
+      'Something unique',
+
+    subtitle:
+      'Create your own vibe',
   },
 ];
 
-export default function CompanionGenderScreen() {
+export default function CompanionRoleScreen({
+  navigation,
+}) {
   /**
    * Auth
    */
@@ -66,14 +131,25 @@ export default function CompanionGenderScreen() {
   } = useAuth();
 
   /**
-   * Selected companion gender
+   * Locale
+   */
+  const locale =
+    user?.preferred_language ||
+    'en';
+
+  const copy =
+    roleCopy[locale] ||
+    roleCopy.en;
+
+  /**
+   * Selected role
    */
   const [selected, setSelected] =
     useState(
       user
         ?.onboarding_profile
-        ?.gender_preference ||
-        'female',
+        ?.companion_role ||
+      null,
     );
 
   /**
@@ -86,14 +162,22 @@ export default function CompanionGenderScreen() {
    * Continue enabled
    */
   const canContinue =
-    !loading;
+    useMemo(() => {
+      return (
+        !!selected &&
+        !loading
+      );
+    }, [
+      selected,
+      loading,
+    ]);
 
   /**
    * Continue
    */
   async function handleContinue() {
     /**
-     * Prevent spam clicks
+     * Prevent invalid submit
      */
     if (!canContinue) {
       return;
@@ -103,10 +187,10 @@ export default function CompanionGenderScreen() {
       setLoading(true);
 
       /**
-       * Save companion gender
+       * Update role
        */
       const response =
-        await updateCompanionGender(
+        await updateCompanionRole(
           selected,
         );
 
@@ -131,14 +215,18 @@ export default function CompanionGenderScreen() {
       );
 
       /**
-       * DO NOT navigate manually
-       * RootNavigator handles onboarding flow
+       * Navigate next
        */
+      setTimeout(() => {
+        navigation.replace(
+          'Main',
+        );
+      }, 300);
     } catch (err) {
       console.log(
-        'updateCompanionGender error:',
+        'updateRole error:',
         err?.message ||
-          err,
+        err,
       );
     } finally {
       setLoading(false);
@@ -146,9 +234,9 @@ export default function CompanionGenderScreen() {
   }
 
   /**
-   * Companion gender card
+   * Role card
    */
-  function GenderCard({
+  function RoleCard({
     item,
   }) {
     const active =
@@ -166,7 +254,7 @@ export default function CompanionGenderScreen() {
           styles.card,
 
           active &&
-            styles.activeCard,
+          styles.activeCard,
         ]}
       >
         {/* Icon */}
@@ -195,7 +283,7 @@ export default function CompanionGenderScreen() {
               styles.cardTitle,
 
               active &&
-                styles.activeTitle,
+              styles.activeTitle,
             ]}
           >
             {item.title}
@@ -239,67 +327,63 @@ export default function CompanionGenderScreen() {
         }
       />
 
-      {/* Content */}
-      <View
-        style={
-          styles.content
+      {/* Scrollable content */}
+      <ScrollView
+        contentContainerStyle={
+          styles.scrollContent
         }
+        showsVerticalScrollIndicator={
+          false
+        }
+        bounces={false}
       >
-        {/* Heading */}
-        <Text
-          style={
-            styles.title
-          }
-        >
-          Who feels more
-          comfortable
-          to talk with?
-        </Text>
-
-        {/* Subtitle */}
-        <Text
-          style={
-            styles.subtitle
-          }
-        >
-          Choose the kind
-          of emotional
-          connection you
-          feel safest with ✨
-        </Text>
-
-        {/* Options */}
         <View
           style={
-            styles.list
+            styles.content
           }
         >
-          {COMPANION_GENDERS.map(
-            (item) => (
-              <GenderCard
-                key={item.id}
-                item={item}
-              />
-            ),
-          )}
-        </View>
-      </View>
+          {/* Heading */}
+          <Text
+            style={
+              styles.title
+            }
+          >
+            {copy.title}
+          </Text>
 
-      {/* Footer */}
+          {/* Subtitle */}
+          <Text
+            style={
+              styles.subtitle
+            }
+          >
+            {copy.subtitle}
+          </Text>
+
+          {/* Options */}
+          <View
+            style={
+              styles.list
+            }
+          >
+            {ROLES.map(
+              (item) => (
+                <RoleCard
+                  key={item.id}
+                  item={item}
+                />
+              ),
+            )}
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* Fixed Footer */}
       <View
         style={
           styles.footer
         }
       >
-        {/* Button glow */}
-        {selected && (
-          <View
-            style={
-              styles.buttonGlow
-            }
-          />
-        )}
-
         <Pressable
           onPress={
             handleContinue
@@ -311,7 +395,7 @@ export default function CompanionGenderScreen() {
             styles.button,
 
             !canContinue &&
-              styles.buttonDisabled,
+            styles.buttonDisabled,
           ]}
         >
           <Text
@@ -333,8 +417,15 @@ const styles =
   StyleSheet.create({
     container: {
       flex: 1,
+
       backgroundColor:
         '#05010f',
+    },
+
+    scrollContent: {
+      flexGrow: 1,
+
+      paddingBottom: 150,
     },
 
     topGlow: {
@@ -374,8 +465,6 @@ const styles =
     },
 
     content: {
-      flex: 1,
-
       paddingHorizontal:
         spacing.lg,
 
@@ -391,12 +480,12 @@ const styles =
 
       fontSize:
         width < 370
-          ? 34
+          ? 30
           : 40,
 
       lineHeight:
         width < 370
-          ? 42
+          ? 38
           : 48,
 
       fontWeight:
@@ -417,12 +506,12 @@ const styles =
         colors.textSecondary,
 
       fontSize:
-        typography.sizes
-          .md,
+        width < 370
+          ? 14
+          : typography.sizes
+              .md,
 
       lineHeight: 24,
-
-      paddingHorizontal: 8,
     },
 
     list: {
@@ -442,6 +531,8 @@ const styles =
         'center',
 
       paddingHorizontal: 18,
+
+      paddingVertical: 14,
 
       borderRadius: 28,
 
@@ -486,8 +577,8 @@ const styles =
 
       fontSize:
         width < 370
-          ? 22
-          : 26,
+          ? 20
+          : 24,
 
       fontWeight:
         typography.weights
@@ -510,32 +601,24 @@ const styles =
     },
 
     footer: {
-      paddingHorizontal:
-        spacing.lg,
-
-      paddingBottom: 34,
-
-      paddingTop: 18,
-    },
-
-    buttonGlow: {
       position:
         'absolute',
 
-      left: 56,
+      left: 0,
 
-      right: 56,
+      right: 0,
 
-      bottom: 28,
+      bottom: 0,
 
-      height: 56,
+      paddingHorizontal:
+        spacing.lg,
 
-      borderRadius: 999,
+      paddingTop: 24,
+
+      paddingBottom: 34,
 
       backgroundColor:
-        '#a855f7',
-
-      opacity: 0.24,
+        'rgba(5,1,15,0.92)',
     },
 
     button: {

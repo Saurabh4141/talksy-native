@@ -63,9 +63,6 @@ export async function updateName(name) {
   }
 }
 
-/**
- * Update gender
- */
 export async function updateGender(gender) {
   try {
     const token = await AsyncStorage.getItem('access_token');
@@ -89,3 +86,4 @@ export async function updateGender(gender) {
     );
   }
 }
+

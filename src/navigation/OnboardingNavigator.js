@@ -1,176 +1,26 @@
-import React, {
-  useEffect,
-  useRef,
-} from 'react';
-
-import {
-  BackHandler,
-  ToastAndroid,
-} from 'react-native';
+import React from 'react';
 
 import {
   createNativeStackNavigator,
 } from '@react-navigation/native-stack';
 
 import LanguageScreen from '../modules/onboarding/screens/LanguageScreen';
+
 import NameScreen from '../modules/onboarding/screens/NameScreen';
+
 import GenderScreen from '../modules/onboarding/screens/GenderScreen';
-import CompanionGender from '../modules/onboarding/screens/CompanionGender';
-import Role from '../modules/onboarding/screens/Role';
+
+import CompanionGenderScreen from '../modules/onboarding/screens/CompanionGenderScreen';
+
+import CompanionRoleScreen from '../modules/onboarding/screens/CompanionRoleScreen';
 
 const Stack =
   createNativeStackNavigator();
 
-/**
- * Build onboarding stack
- */
-function getInitialRoutes(
-  step,
-) {
-  switch (step) {
-    case 'name':
-      return [
-        {
-          name: 'Language',
-        },
-
-        {
-          name: 'Name',
-        },
-      ];
-
-    case 'gender':
-      return [
-        {
-          name: 'Language',
-        },
-
-        {
-          name: 'Name',
-        },
-
-        {
-          name: 'Gender',
-        },
-      ];
-
-    case 'companion-gender':
-      return [
-        {
-          name: 'Language',
-        },
-
-        {
-          name: 'Name',
-        },
-
-        {
-          name: 'Gender',
-        },
-
-        {
-          name: 'CompanionGender',
-        },
-      ];
-
-    case 'role':
-      return [
-        {
-          name: 'Language',
-        },
-
-        {
-          name: 'Name',
-        },
-
-        {
-          name: 'Gender',
-        },
-
-        {
-          name: 'CompanionGender',
-        },
-
-        {
-          name: 'Role',
-        },
-      ];
-
-    default:
-      return [
-        {
-          name:
-            'Language',
-        },
-      ];
-  }
-}
-
-export default function OnboardingNavigator({
-  onboardingStep,
-}) {
-  /**
-   * Back press timestamp
-   */
-  const lastBackPress =
-    useRef(0);
-
-  /**
-   * Android back handling
-   */
-  useEffect(() => {
-    const onBackPress =
-      () => {
-        const now =
-          Date.now();
-
-        /**
-         * Double press exit
-         */
-        if (
-          now -
-          lastBackPress.current <
-          2000
-        ) {
-          BackHandler.exitApp();
-
-          return true;
-        }
-
-        lastBackPress.current =
-          now;
-
-        ToastAndroid.show(
-          'Press back again to exit',
-          ToastAndroid.SHORT,
-        );
-
-        return true;
-      };
-
-    const subscription =
-      BackHandler.addEventListener(
-        'hardwareBackPress',
-        onBackPress,
-      );
-
-    return () =>
-      subscription.remove();
-  }, []);
-
+export default function OnboardingNavigator() {
   return (
     <Stack.Navigator
-      initialState={{
-        index:
-          getInitialRoutes(
-            onboardingStep,
-          ).length - 1,
-
-        routes:
-          getInitialRoutes(
-            onboardingStep,
-          ),
-      }}
+      initialRouteName="Language"
       screenOptions={{
         headerShown: false,
 
@@ -207,12 +57,11 @@ export default function OnboardingNavigator({
         }
       />
 
-
       {/* Companion Gender */}
       <Stack.Screen
         name="CompanionGender"
         component={
-          CompanionGender
+          CompanionGenderScreen
         }
       />
 
@@ -220,10 +69,9 @@ export default function OnboardingNavigator({
       <Stack.Screen
         name="Role"
         component={
-          Role
+          CompanionRoleScreen
         }
       />
-
     </Stack.Navigator>
   );
 }

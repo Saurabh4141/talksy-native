@@ -39,3 +39,41 @@ export async function updateCompanionGender(
     );
   }
 }
+
+export async function updateCompanionRole(
+  companionRole,
+) {
+  try {
+    const token =
+      await AsyncStorage.getItem(
+        'access_token',
+      );
+
+    const data =
+      await apiRequest({
+        endpoint:
+          '/onboarding/companion-role',
+
+        method: 'PATCH',
+
+        token,
+
+        body: {
+          companion_role:
+            companionRole,
+        },
+      });
+
+    return data;
+  } catch (err) {
+    console.log(
+      'updateCompanionRole error:',
+      err,
+    );
+
+    throw new Error(
+      err?.message ||
+      'Failed to update companion role',
+    );
+  }
+}
